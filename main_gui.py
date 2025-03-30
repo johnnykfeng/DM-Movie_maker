@@ -1,8 +1,13 @@
+import os
+import numpy as np
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import os
-from modules import *
-import numpy as np
+from modules import (get_file_name, 
+                     extract_mat_files, 
+                     sort_module_order, 
+                     create_structured_array, 
+                     normalize_structured_array, 
+                     make_animation)
 
 class MovieMakerGUI:
     def __init__(self, root):
