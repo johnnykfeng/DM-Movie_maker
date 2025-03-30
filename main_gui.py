@@ -151,6 +151,20 @@ class MovieMakerGUI:
             self.npy_path.set(file)
             
     def process_data(self):
+        """Process raw .mat files into a structured numpy array.
+        
+        This method:
+        - Takes the selected data path containing .mat files
+        - Creates save folders if they don't exist
+        - Extracts and sorts .mat files by module order
+        - Creates a structured array from the .mat files
+        - Saves the array to the specified save path
+        
+        Raises:
+            - ValueError if data path is not selected
+            - OSError if save folders cannot be created
+            - Other exceptions during processing
+        """
         print("Processing data")
         try:
             data_path = self.data_path.get()
@@ -196,6 +210,19 @@ class MovieMakerGUI:
             messagebox.showerror("Error", f"Error during data processing: {str(e)}")
 
     def normalize_data(self):
+        """Normalize X-ray data using air normalization.
+        
+        This method:
+        - Takes the selected feature array path and airnorm array path
+        - Loads the arrays
+        - Normalizes the feature array using the airnorm array
+        - Saves the normalized array to the specified save path
+        
+        Raises:
+            - ValueError if feature or airnorm array path is not selected
+            - OSError if save folders cannot be created
+            - Other exceptions during processing
+        """
         try:
             print("Normalizing data")
             feature_path = self.feature_path.get()
@@ -212,6 +239,19 @@ class MovieMakerGUI:
             messagebox.showerror("Error", f"Error during data normalization: {str(e)}")
         
     def process_animation(self):
+        """Create an MP4 animation from a structured numpy array.
+        
+        This method:
+        - Takes the selected .npy file path and save folder
+        - Loads the array
+        - Creates an MP4 animation from the array
+        - Saves the animation to the specified save path
+        
+        Raises:
+            - ValueError if save folder is not selected
+            - OSError if save folders cannot be created
+            - Other exceptions during processing
+        """
         try:
             print("Processing animation")
             save_folder = self.save_folder.get()
