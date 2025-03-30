@@ -24,6 +24,7 @@ class MovieMakerGUI:
         self.data_id = ""
         
         self.npy_path = tk.StringVar()
+        self.movie_save_path = tk.StringVar()
         self.frame_start = tk.StringVar(value="0")
         self.frame_end = tk.StringVar(value="1000")
         self.bin_selector = tk.StringVar(value="6")
@@ -100,6 +101,12 @@ class MovieMakerGUI:
         # Animation Parameters Frame
         param_frame = ttk.LabelFrame(self.root, text="Animation Parameters")
         param_frame.pack(fill='x', padx=20, pady=10, anchor='w')
+        
+        # Movie Save Path
+        ttk.Label(param_frame, text="Movie Save Path:").pack(anchor='w', pady=(5,0), padx=5)
+        ttk.Entry(param_frame, textvariable=self.movie_save_path, width=100).pack(anchor='w', pady=(5,0))
+        # ttk.Button(param_frame, text="Browse", command=self.browse_movie_save_path,
+        #           style='Browse.TButton').pack(anchor='w', pady=5)
         
         # Frame Range
         ttk.Label(param_frame, text="Frame Range:").pack(anchor='w', pady=(5,0), padx=5)
@@ -282,7 +289,10 @@ class MovieMakerGUI:
                     
             structured_array = np.load(npy_path)
             movie_name = get_file_name(npy_path, remove_extension=True)
-            movie_path = os.path.join(save_folder, f"{movie_name}.mp4")
+            if self.movie_save_path.get():
+                movie_path = self.movie_save_path.get()
+            else:
+                movie_path = os.path.join(save_folder, f"{movie_name}.mp4")
             
             make_animation(structured_array,
                          frame_selector=[int(self.frame_start.get()), int(self.frame_end.get())],
