@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import plotly.express as px
 import numpy as np
 import scipy.io
 import os
 import time
+import pandas as pd
 from config import MM_ORDER
 
 def sort_module_order(
@@ -224,3 +226,30 @@ def make_animation(structured_array,
     print(f"Animation saved as '{animation_name}'")
     end_time = time.time()
     print(f"Animation saved in {round(end_time - start_time, 1)} seconds")
+
+def create_plotly_heatmaps(map, color_range=None, colormap="Viridis", figsize=None):
+    if color_range is None:
+        color_range = [np.min(map), np.max(map)]
+
+    fig = px.imshow(
+        map,
+        color_continuous_scale=colormap,
+        range_color=color_range,
+        labels=dict(x="x", y="y", color="value"),
+    )
+
+    return fig
+
+def create_histogram(data, y_axis_type='log', max_y_value=500, max_x_value=2):
+    # Flatten the 2D array and create a pandas DataFrame
+    # df = pd.DataFrame({'value': data.flatten()})
+    flattened_data = data.flatten()
+    fig = px.histogram(flattened_data, 
+                    #    nbins=100,
+                       )
+    fig.update_layout(title='Distribution of all pixel values', 
+                      xaxis_title='Pixel value', yaxis_title='Count (log scale)')
+    fig.update_layout(yaxis_type=y_axis_type)
+    fig.update_xaxes(range=[0, max_x_value])
+    fig.update_yaxes(range=[0, np.log10(max_y_value)])
+    return fig
