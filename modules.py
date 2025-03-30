@@ -75,9 +75,9 @@ def create_structured_array(mat_files: list, save_path: str = None, verbose: boo
     # Initialize structured array
     structured_dtype = np.dtype(
         [
-            ("bin_id", "i4"),
-            ("frame_number", "i4"),
-            ("DM_pixel_data", "f4", (192, 72)),
+            ("bin_id", "i1"),
+            ("frame_number", "i2"),
+            ("DM_pixel_data", "f2", (192, 72)),
         ]
     )
     structured_array = np.empty((num_bins, num_sample_frames), dtype=structured_dtype)
@@ -121,9 +121,9 @@ def create_structured_array(mat_files: list, save_path: str = None, verbose: boo
 def normalize_structured_array(feature_array, airnorm_array, save_path: str = None):
     n_bins = feature_array.shape[0]
     n_total_frames = feature_array.shape[1]
-    structured_dtype = np.dtype([("bin_id", "i4"),
-                                ("frame_number", "i4"),
-                                ("DM_pixel_data", "f4", (192, 72))])
+    structured_dtype = np.dtype([("bin_id", "i1"),
+                                ("frame_number", "i2"),
+                                ("DM_pixel_data", "f2", (192, 72))])
     normalized_array = np.empty((n_bins, n_total_frames), dtype=structured_dtype)
     for bin_idx in range(n_bins):
         # average the airnorm array per bin
