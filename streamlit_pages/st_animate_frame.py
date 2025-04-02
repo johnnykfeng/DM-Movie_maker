@@ -10,12 +10,19 @@ st.set_page_config(layout="wide")
 
 st.title("DM Frame-by-Frame Animation")
 with st.sidebar:
-    npy_path = st.text_input("Enter the path to the .npy file", value=r"DATA\ANIMATIONS\1_cylinder_0.1Cu_13p8Al_10mA_4000_frames_0.001_resolution_20PE_normalized.npy")
+    file_source = st.radio("File source", options=["Local", "File Uploader"], index=1)
+    if file_source == "Local":
+        npy_path = st.text_input("Enter the path to the .npy file", value=r"DATA\ANIMATIONS\1_cylinder_0.1Cu_13p8Al_10mA_4000_frames_0.001_resolution_20PE_normalized.npy")
+    else:
+        npy_path = st.file_uploader("Upload a .npy file", type="npy")
+        if npy_path is not None:
+            npy_data = np.load(npy_path)
+        else:
+            st.warning("Please upload a .npy file")
+            st.stop()
     frame_time = st.number_input("Frame time (ms)", value=10, min_value=5, max_value=1000)
     full_speed = st.checkbox("Full speed", value=False)
 
-
-npy_data = np.load(npy_path)
 n_bins = npy_data.shape[0]
 n_total_frames = npy_data.shape[1]
 
