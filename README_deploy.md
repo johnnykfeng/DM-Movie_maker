@@ -1,8 +1,7 @@
 
-# DM Frame Viewer Web App
-
-### Schematic of X-ray detector operation capturing rotating phantom
-<img src="ASSETS\Screenshot_2025-04-02_154815.png" alt="image" width="400"/>
+### X-ray detector capture of rotating phantom
+<!-- <img src="ASSETS\Screenshot_2025-04-02_154815.png" alt="image" width="400"/> -->
+<!-- ![image](ASSETS\Screenshot_2025-04-02_154815.png) -->
 
 This Streamlit web application provides an interactive interface for viewing and analyzing X-ray detector data frames. The app allows users to explore multi-dimensional X-ray data through various visualization tools and controls. The data displayed is the capture of rotating phantom with helical beads on the surface. You can faintly see the smaller beads arranged in a helix, and one larger bead on the surface.
 

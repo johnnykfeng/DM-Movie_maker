@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 import numpy as np
 import plotly.express as px
 from modules import create_plotly_heatmaps, create_histogram
@@ -7,6 +8,16 @@ st.set_page_config(layout="wide")
 
 st.title("Frame-by-Frame Analyzer")
 
+with st.expander("**About**"):
+    # Load image
+    image = Image.open("ASSETS/Screenshot_2025-04-02_154815.png")
+    st.image(image, caption="X-ray detector capture of rotating phantom", width=400)
+    # Load markdown file
+    with open("README_deploy.md", "r") as f:
+        markdown_content = f.read()
+    # Display markdown
+    st.markdown(markdown_content, unsafe_allow_html=True)
+    
 npy_path = r"sample.npy"
 npy_data = np.load(npy_path)
 # n_bins = npy_data.shape[0]
@@ -22,12 +33,12 @@ with st.sidebar:
     )
 
     frame_step = st.number_input(
-        "Frame step", value=1, min_value=1, max_value=n_total_frames - 1
+        "Frame Step", value=10, min_value=1, max_value=n_total_frames - 1
     )
 
     # Create a slider for frame selection
     frame_selector = st.number_input(
-        "Frame selector",
+        "Frame Selector",
         min_value=0,
         max_value=n_total_frames - 1,
         value=0,
@@ -105,6 +116,7 @@ with st.expander("**Analysis Tools**"):
 
 col1, col2 = st.columns(2)
 with col1:
+    st.write(f"**Frame**: {frame_selector}")
     st.plotly_chart(fig)
 with col2:
     if show_histogram:
