@@ -13,7 +13,7 @@ class MovieMakerGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("DM Movie Maker")
-        self.root.geometry("800x900")
+        self.root.geometry("800x1000")
         
         # Variables
         self.data_path = tk.StringVar(value=r"C:\Users\10552\OneDrive - Redlen Technologies\Code\IMAGE QUALITY\DM-Movie-Maker\DATA\S1160-2025-Mar-12-15h26m08s-cylinder-bb\1_cylinder_0.1Cu_13p8Al_10mA_4000_frames_0.001_resolution_20PE")
@@ -27,6 +27,8 @@ class MovieMakerGUI:
         self.movie_save_path = tk.StringVar()
         self.frame_start = tk.StringVar(value="0")
         self.frame_end = tk.StringVar(value="1000")
+        self.frame_start_movie = tk.StringVar(value="0")
+        self.frame_end_movie = tk.StringVar(value="1000")
         self.bin_selector = tk.StringVar(value="6")
         self.fps = tk.StringVar(value="60")
         
@@ -54,6 +56,14 @@ class MovieMakerGUI:
         ttk.Button(save_frame, text="Browse", command=self.browse_save_folder,
                   style='Browse.TButton').pack(anchor='w', pady=5)
         
+        # Range Selection
+        range_frame = ttk.Frame(self.root)
+        range_frame.pack(anchor='w', pady=5, padx=5)
+        ttk.Label(range_frame, text="Range:").pack(anchor='w', pady=(5,0), padx=5)
+        ttk.Entry(range_frame, textvariable=self.frame_start, width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Label(range_frame, text="to").pack(side=tk.LEFT)
+        ttk.Entry(range_frame, textvariable=self.frame_end, width=10).pack(side=tk.LEFT, padx=5)
+
         # Process Data Button
         button_frame = ttk.Frame(self.root)
         button_frame.pack(fill='x', padx=20, anchor='w')
@@ -112,9 +122,9 @@ class MovieMakerGUI:
         ttk.Label(param_frame, text="Frame Range:").pack(anchor='w', pady=(5,0), padx=5)
         frame_range_frame = ttk.Frame(param_frame)
         frame_range_frame.pack(anchor='w', pady=5, padx=5)
-        ttk.Entry(frame_range_frame, textvariable=self.frame_start, width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Entry(frame_range_frame, textvariable=self.frame_start_movie, width=10).pack(side=tk.LEFT, padx=5)
         ttk.Label(frame_range_frame, text="to").pack(side=tk.LEFT)
-        ttk.Entry(frame_range_frame, textvariable=self.frame_end, width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Entry(frame_range_frame, textvariable=self.frame_end_movie, width=10).pack(side=tk.LEFT, padx=5)
         
         # Bin Selector
         ttk.Label(param_frame, text="Bin Selector:").pack(anchor='w', pady=(5,0), padx=5)
@@ -212,7 +222,9 @@ class MovieMakerGUI:
             mat_files = sort_module_order(mat_files, source="folderpath_backslash")
                 
             structured_array = create_structured_array(
-                mat_files, save_path=self.npy_save_path
+                mat_files, 
+                save_path=self.npy_save_path,
+                frame_range=(int(self.frame_start.get()), int(self.frame_end.get()))
             )
             messagebox.showinfo("Success", "Data processing completed successfully!")
             
@@ -264,15 +276,18 @@ class MovieMakerGUI:
         """
         try:
             print("Processing animation")
-            save_folder = self.save_folder.get()
+            # save_folder = self.save_folder.get()
+            # if not os.path.exists(save_folder):
+            #     try:
+            #         os.makedirs(save_folder)
+            #         print(f"Created save folder: {save_folder}")
+            #     except Exception as e:
+            #         messagebox.showerror("Error", f"Could not create save folder: {str(e)}")
+            #         return
             npy_path = self.npy_path.get()
 
             print(f"Npy path: {npy_path}")
             
-            # Ask user for confirmation before proceeding
-            if not messagebox.askyesno("Confirm", "Ready to create animation. Continue?"):
-                return
-                
             if not os.path.exists(npy_path):
                 messagebox.showerror("Error", "Selected .npy file does not exist")
                 return
@@ -281,24 +296,25 @@ class MovieMakerGUI:
             if not npy_path.endswith('.npy'):
                 messagebox.showerror("Error", "Selected file must have .npy extension")
                 return
-                
-            if not os.path.exists(save_folder):
-                try:
-                    os.makedirs(save_folder)
-                    print(f"Created save folder: {save_folder}")
-                except Exception as e:
-                    messagebox.showerror("Error", f"Could not create save folder: {str(e)}")
-                    return
                     
+
             structured_array = np.load(npy_path)
-            movie_name = get_file_name(npy_path, remove_extension=True)
+            # movie_name = get_file_name(npy_path, remove_extension=True)
+            movie_name = "movie"
+            parent_folder = os.path.dirname(npy_path)
+
+            # Check if movie save path is providedk
             if self.movie_save_path.get():
                 movie_path = self.movie_save_path.get()
             else:
-                movie_path = os.path.join(save_folder, f"{movie_name}.mp4")
+                movie_path = os.path.join(parent_folder, f"{movie_name}.mp4")
+
+            # Ask user for confirmation before proceeding
+            if not messagebox.askyesno("Confirm", f"Animation will be saved to: \n{movie_path}.\n\nContinue?"):
+                return
             
             make_animation(structured_array,
-                         frame_selector=[int(self.frame_start.get()), int(self.frame_end.get())],
+                         frame_selector=[int(self.frame_start_movie.get()), int(self.frame_end_movie.get())],
                          bin_selector=int(self.bin_selector.get()),
                          fps=int(self.fps.get()),
                          writer='ffmpeg',
