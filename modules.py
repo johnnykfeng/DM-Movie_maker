@@ -52,7 +52,10 @@ def extract_mat_files(folder_path):
     return mat_files
 
 
-def create_structured_array(mat_files: list, save_path: str = None, verbose: bool = False):
+def create_structured_array(mat_files: list, 
+                            save_path: str = None, 
+                            verbose: bool = False,
+                            pixel_data_dtype: str = "i4"):
     """
     Create a structured array from the data in the data_path.
     """
@@ -79,7 +82,7 @@ def create_structured_array(mat_files: list, save_path: str = None, verbose: boo
         [
             ("bin_id", "i1"),
             ("frame_number", "i2"),
-            ("DM_pixel_data", "f3", (192, 72)),
+            ("DM_pixel_data", pixel_data_dtype, (192, 72)),
         ]
     )
     structured_array = np.empty((num_bins, num_sample_frames), dtype=structured_dtype)
@@ -120,12 +123,15 @@ def create_structured_array(mat_files: list, save_path: str = None, verbose: boo
     print(f"Data processing completed in {round(end_time - start_time, 1)} seconds")
     return structured_array
    
-def normalize_structured_array(feature_array, airnorm_array, save_path: str = None):
+def normalize_structured_array(feature_array, 
+                               airnorm_array, 
+                               save_path: str = None, 
+                               dtype: str = "f4"):
     n_bins = feature_array.shape[0]
     n_total_frames = feature_array.shape[1]
     structured_dtype = np.dtype([("bin_id", "i1"),
                                 ("frame_number", "i2"),
-                                ("DM_pixel_data", "f3", (192, 72))])
+                                ("DM_pixel_data", dtype, (192, 72))])
     normalized_array = np.empty((n_bins, n_total_frames), dtype=structured_dtype)
     for bin_idx in range(n_bins):
         # average the airnorm array per bin
