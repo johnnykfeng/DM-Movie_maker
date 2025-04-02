@@ -53,6 +53,7 @@ def extract_mat_files(folder_path):
 
 
 def create_structured_array(mat_files: list, 
+                            frame_range: tuple = None,
                             save_path: str = None, 
                             verbose: bool = False,
                             pixel_data_dtype: str = "i4"):
@@ -85,10 +86,15 @@ def create_structured_array(mat_files: list,
             ("DM_pixel_data", pixel_data_dtype, (192, 72)),
         ]
     )
-    structured_array = np.empty((num_bins, num_sample_frames), dtype=structured_dtype)
+    if frame_range is None:
+        structured_array = np.empty((num_bins, num_sample_frames), dtype=structured_dtype)
+        frame_selector = (0, num_sample_frames)
+    else:
+        structured_array = np.empty((num_bins, frame_range[1] - frame_range[0]), dtype=structured_dtype)
+        frame_selector = frame_range
 
     for bin_idx in range(num_bins):
-        for frame_idx in range(num_sample_frames):
+        for frame_idx in range(frame_selector[0], frame_selector[1]):
             # print(f"bin_idx: {bin_idx}, frame_idx: {frame_idx}")
             count_maps_A0 = []
             count_maps_A1 = []
@@ -158,6 +164,9 @@ def make_animation(structured_array,
                    fps=30,
                    writer='html', 
                    save_path=None):
+    """
+    Make an animation of the structured array.
+    """
     n_bins = structured_array.shape[0]
     n_total_frames = structured_array.shape[1]
     print(f"{n_bins = }")
