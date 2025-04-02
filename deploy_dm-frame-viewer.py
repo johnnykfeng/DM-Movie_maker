@@ -73,7 +73,7 @@ if invert_colormap:
 fig = create_plotly_heatmaps(filtered_data, color_range=color_range, colormap=colormap)
 fig.update_layout(height=fig_height)
 
-with st.expander("**Visualization settings**"):
+with st.expander("**Analysis Tools**"):
     cols = st.columns(5)
     with cols[0]:
         show_histogram = st.checkbox("Histogram", value=True)
