@@ -1,0 +1,9 @@
+numpy
+pandas
+matplotlib
+scipy
+plotly
+tk
+pillow
+kivy
+ffmpeg-python

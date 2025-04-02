@@ -1,6 +1,0 @@
-numpy
-matplotlib
-scipy
-tkinter
-ffmpeg-python
-pillow
