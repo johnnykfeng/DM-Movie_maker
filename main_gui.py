@@ -194,12 +194,15 @@ class MovieMakerGUI:
             
             self.data_id = get_file_name(data_path)
             print(f"self.data_id: {self.data_id}")
-            self.npy_save_path = os.path.join(save_folder, self.data_id)
+            folder_path = os.path.join(save_folder, self.data_id)
+            self.npy_save_path = os.path.join(folder_path, "struct_array.npy")
+            print(f"self.npy_save_path: {self.npy_save_path}")
             # Check if save folder exists, create if it doesn't
-            if not os.path.exists(self.npy_save_path):
+            if not os.path.exists(folder_path):
+                print(f"{folder_path} does not exist")
                 try:
-                    os.makedirs(self.npy_save_path)
-                    print(f"Created save folder: {self.npy_save_path}")
+                    os.makedirs(folder_path)
+                    print(f"Created save folder: {folder_path}")
                 except Exception as e:
                     messagebox.showerror("Error", f"Could not create save folder: {str(e)}")
                     return
