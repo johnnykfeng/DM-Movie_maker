@@ -33,24 +33,53 @@ with st.sidebar:
 
     start_frame = st.number_input("Start frame", value=0, min_value=0, max_value=n_total_frames-1)
     end_frame = st.number_input("End frame", value=n_total_frames-1, min_value=0, max_value=n_total_frames-1)
+    step_frame = st.number_input("Step frame", value=1, min_value=1, max_value=n_total_frames-1)
 
     fig_height = st.slider("Select the height of the figure", min_value=100, max_value=1000, value=600)
     
-    st.subheader("Histogram settings")
-    max_y_value = st.number_input("Max y value", value=500, min_value=100, max_value=1000)
-    max_x_value = st.number_input("Max x value", value=2.0, min_value=1.0, max_value=30.0)
+
+with st.expander("**Visualization settings**"):
+    control_cols = st.columns(5)
+    with control_cols[0]:
+        histogram_toggle = st.checkbox("Histogram", value=False)
+    with control_cols[1]:
+        column_avg_toggle = st.checkbox("Column-wise average", value=False)
+    with control_cols[2]:
+        row_avg_toggle = st.checkbox("Row-wise average", value=False)
+    with control_cols[3]:
+        column_line_toggle = st.checkbox("Column-wise line", value=False)
+    with control_cols[4]:
+        row_line_toggle = st.checkbox("Row-wise line", value=False)
+
+    control_cols_b = st.columns(5)
+    with control_cols_b[0]:
+        # st.write("**Histogram settings**")
+        max_y_value = st.number_input("Max y value", value=500, min_value=100, max_value=1000)
+        max_x_value = st.number_input("Max x value", value=2.0, min_value=1.0, max_value=30.0)
+        
+    with control_cols_b[3]:
+        column_selector = st.number_input("Column (x-index) selector", 
+                                        min_value=0, 
+                                        max_value=71, 
+                                        value=31, step=1,
+                                        key=f"column_selector")
+    with control_cols_b[4]:
+        row_selector = st.number_input("Row (y-index) selector", 
+                                        min_value=0, 
+                                        max_value=191, 
+                                        value=43, step=1,
+                                        key=f"row_selector")
 
 st.write(f"**Bin: {bin_selector} ({BIN_LABELS[bin_selector]})**")
 control_container = st.container()
 frame_num_container = st.empty()
+
 col1, col2 = st.columns(2)
 with col1:
     container1 = st.empty()
 with col2:
-    histogram_toggle = st.checkbox("Histogram", value=False)
-    column_avg_toggle = st.checkbox("Column-wise average", value=False)
-    row_avg_toggle = st.checkbox("Row-wise average", value=False)
     container2 = st.empty()
+
 
 # Get min and max values across all data for this bin
 all_frame_data = npy_data[bin_selector, :]['DM_pixel_data']
@@ -108,7 +137,7 @@ if not st.session_state.animation_running:
             st.plotly_chart(fig_row_avg)
 
 else:
-    for frame in range(start_frame, end_frame):
+    for frame in range(start_frame, end_frame, step_frame):
         st.session_state.frame_number = frame
         frame_num_container.write(f"Frame {st.session_state.frame_number}")
         if not full_speed:
@@ -122,7 +151,8 @@ else:
 
         with container2:
             if histogram_toggle:
-                fig_histogram = create_histogram(filtered_data, max_y_value=max_y_value, max_x_value=max_x_value)
+                fig_histogram = create_histogram(filtered_data)
+                fig_histogram.update_layout(yaxis_range=[np.log10(0.2), np.log10(max_y_value)], xaxis_range=[0, max_x_value])
                 st.plotly_chart(fig_histogram)
                 
             if column_avg_toggle:
@@ -140,7 +170,18 @@ else:
                                     title='Row-wise Average',
                                     markers=True)
                 st.plotly_chart(fig_row_avg)
-
+                
+            if column_line_toggle:
+                fig_column_line = px.line(filtered_data[:, column_selector], 
+                                labels={'index': 'Frame Number', 'value': 'Pixel Value'},
+                                title=f'Column {column_selector} Average')
+                st.plotly_chart(fig_column_line)
+            
+            if row_line_toggle:
+                fig_row_line = px.line(filtered_data[row_selector, :], 
+                            labels={'index': 'Frame Number', 'value': 'Pixel Value'},
+                            title=f'Row {row_selector} Average')
+                st.plotly_chart(fig_row_line)
 
 
 
