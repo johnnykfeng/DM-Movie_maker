@@ -1,3 +1,4 @@
+# %%
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import plotly.express as px
@@ -53,7 +54,8 @@ def extract_mat_files(folder_path):
 
 
 def create_structured_array(mat_files: list, 
-                            frame_range: tuple = None,
+                            frame_range: list = None,
+                            bin_range: list = None,
                             save_path: str = None, 
                             verbose: bool = False,
                             pixel_data_dtype: str = "i4"):
@@ -73,10 +75,10 @@ def create_structured_array(mat_files: list,
         if verbose:
             print(f"Mat file: {file_name}")
         if m == 0:
-            num_sample_frames = cc_data.shape[2]
-            num_bins = cc_data.shape[1]
-            print(f"{num_sample_frames = }")
-            print(f"{num_bins = }")
+            total_frames = cc_data.shape[2]
+            total_bins = cc_data.shape[1]
+            print(f"{total_frames = }")
+            print(f"{total_bins = }")
 
     # Initialize structured array
     structured_dtype = np.dtype(
@@ -87,14 +89,19 @@ def create_structured_array(mat_files: list,
         ]
     )
     if frame_range is None:
-        structured_array = np.empty((num_bins, num_sample_frames), dtype=structured_dtype)
-        frame_selector = (0, num_sample_frames)
+        frame_selector = np.array(range(total_frames))
     else:
-        structured_array = np.empty((num_bins, frame_range[1] - frame_range[0]), dtype=structured_dtype)
         frame_selector = frame_range
+    
+    if bin_range is None:
+        bin_selector = np.array(range(total_bins))
+    else:
+        bin_selector = bin_range
 
-    for bin_idx in range(num_bins):
-        for frame_idx in range(frame_selector[0], frame_selector[1]):
+    structured_array = np.empty((total_bins, total_frames), dtype=structured_dtype)
+
+    for bin_idx in bin_selector:
+        for frame_idx in frame_selector:
             # print(f"bin_idx: {bin_idx}, frame_idx: {frame_idx}")
             count_maps_A0 = []
             count_maps_A1 = []
@@ -121,7 +128,7 @@ def create_structured_array(mat_files: list,
             )
             # print(DM_count_map.shape)
             structured_array[bin_idx, frame_idx] = (bin_idx, frame_idx, DM_count_map)
-
+    structured_array = structured_array[bin_selector, frame_selector]
     if save_path:
         np.save(save_path, structured_array)
         print(f"Saved structured array to {save_path}")
@@ -255,16 +262,34 @@ def create_plotly_heatmaps(map, color_range=None, colormap="Viridis", figsize=No
 
     return fig
 
-def create_histogram(data, y_axis_type='log', max_y_value=500, max_x_value=2):
-    # Flatten the 2D array and create a pandas DataFrame
-    # df = pd.DataFrame({'value': data.flatten()})
+def create_histogram(data):
     flattened_data = data.flatten()
     fig = px.histogram(flattened_data, 
-                    #    nbins=100,
+                       nbins=100,
                        )
     fig.update_layout(title='Distribution of all pixel values', 
                       xaxis_title='Pixel value', yaxis_title='Count (log scale)')
-    fig.update_layout(yaxis_type=y_axis_type)
-    fig.update_xaxes(range=[0, max_x_value])
-    fig.update_yaxes(range=[0, np.log10(max_y_value)])
     return fig
+
+# # %% 
+# data_path = r"DATA\2025-01-29-Static-Scans-Phantoms-1kHz-Rotation\phantom_W_beads_1kHz_SDD_341_0.1Cu_13p8Al_3mA_2000_frames_0.001_resolution_20PE"
+# mat_files = extract_mat_files(data_path)
+# mat_files = sort_module_order(mat_files, source="folderpath_backslash")
+# bin_range = [6]
+# frame_start, frame_end, frame_step = 0, 2000, 5
+# frame_range = np.arange(frame_start, frame_end, frame_step)
+# file_path = f"test_bin-{bin_range[0]}_frames-{frame_start}to{frame_end}step{frame_step}.npy"
+# struct_array = create_structured_array(mat_files,
+#                         frame_range=frame_range,
+#                         bin_range=bin_range,
+#                         save_path=file_path)
+# print(struct_array.shape)
+# print(struct_array['DM_pixel_data'].shape)
+    
+# # %% normalize the structured array
+# airnorm_path = r"DATA\ANIMATIONS\phantom_W_beads_1kHz_SDD_341_0.1Cu_13p8Al_3mA_2000_frames_0.001_resolution_20PE\airnorm_SDD_341_0.1Cu_13p8Al_3mA_2000_frames_0.001_resolution_20PE\struct_array.npy"
+
+
+
+
+# %%
