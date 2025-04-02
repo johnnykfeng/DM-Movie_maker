@@ -1,0 +1,10 @@
+numpy
+pandas
+matplotlib
+scipy
+plotly
+streamlit
+tk
+pillow
+kivy
+ffmpeg-python
